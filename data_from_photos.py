@@ -1,13 +1,11 @@
-import sys, zlib
+import sys
 import shutil
-import requests
 import os
-from io import BytesIO, StringIO
 from zipfile import ZipFile
-from PIL import Image
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap, QPen, QPainter
+from PyQt5.QtGui import QPixmap, QPen, QPainter, QBrush
 from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QFileDialog
+from PyQt5.QtCore import Qt
 
 
 class Upload(QMainWindow):
@@ -18,21 +16,17 @@ class Upload(QMainWindow):
         super().__init__()
         uic.loadUi('designPredprof.ui', self)
         self.photoes = ''
-        self.zagruzka = False
         self.square = ''
         self.lblSquare.hide()
         self.lblPhoto.hide()
         self.btnRun.clicked.connect(self.run)
         self.btnSquareUpload.clicked.connect(self.add_square)
         self.btnPhotoUpload.clicked.connect(self.add_photo)
-        self.btnZagruz.clicked.connect(self.zagruz)
         self.comboBox.currentTextChanged.connect(self.change)
+        self.btnInfo.clicked.connect(self.info)
 
-    def zagruz(self):
-        if self.btnZagruz.isChecked():
-            self.zagruzka = True
-        else:
-            self.zagruzka = False
+    def info(self):
+        pass
 
     def change(self):
         self.photoes = ''
@@ -98,7 +92,7 @@ class Upload(QMainWindow):
                                                               "фотографии участков поля",
                                                     QMessageBox.Ok)
                     else:
-                        self.res_form = ResWidget(self.zagruzka, self.squares_sp, self.photoes_sp, self.coords)
+                        self.res_form = ResWidget(self.squares_sp, self.photoes_sp, self.coords)
                         self.res_form.show()
                         self.hide()
                 except Exception as ex:
@@ -117,7 +111,7 @@ class Upload(QMainWindow):
                                                               "фотографии участков поля",
                                                     QMessageBox.Ok)
                     else:
-                        self.res_form = ResWidget(self.zagruzka, self.squares_sp, self.photoes_sp, self.coords)
+                        self.res_form = ResWidget(self.squares_sp, self.photoes_sp, self.coords)
                         self.res_form.show()
                         self.hide()
                         self.lblSquare.hide()
@@ -131,19 +125,19 @@ class Upload(QMainWindow):
         self.coords = []
         sp = []
         with ZipFile(self.photoes, 'r') as zip_file:
-            zip_file.extractall('{}\\photoes'.format(os.getcwd()))
-        file = os.listdir('photoes')
+            zip_file.extractall('{}\\photoes_from_data_546712'.format(os.getcwd()))
+        file = os.listdir('photoes_from_data_546712')
         for i in file:
             if i[:4] == 'Foto':
                 self.photoes_sp.append(i)
-        shutil.rmtree('photoes', ignore_errors=True)
+        shutil.rmtree('photoes_from_data_546712', ignore_errors=True)
         if self.square[-1] == 'p':
             with ZipFile(self.square, 'r') as zip_file:
-                zip_file.extractall('{}\\square'.format(os.getcwd()))
-            file = os.listdir('square')
+                zip_file.extractall('{}\\square_from_data_984601'.format(os.getcwd()))
+            file = os.listdir('square_from_data_984601')
             for i in file:
                 if i[:5] == 'Field':
-                    with open('square\\{}'.format(i), encoding='utf-8') as f:
+                    with open('square_from_data_984601\\{}'.format(i), encoding='utf-8') as f:
                         for j in f:
                             sp.append(j)
             for i in sp:
@@ -161,7 +155,7 @@ class Upload(QMainWindow):
                 p += spisok[-1][0] * spisok[0][1]
                 h += spisok[0][0] * spisok[-1][1]
                 self.squares_sp.append(abs(p - h) * 0.5)
-            shutil.rmtree('square', ignore_errors=True)
+            shutil.rmtree('square_from_data_984601', ignore_errors=True)
         else:
             with open(self.square, mode="r", encoding='utf-8') as file:
                 for i in file:
@@ -188,13 +182,13 @@ class Upload(QMainWindow):
         self.coords = []
         sp = []
         with ZipFile(self.square, 'r') as zip_file:
-            zip_file.extractall('{}\\data'.format(os.getcwd()))
-            file = os.listdir('data')
+            zip_file.extractall('{}\\list_from_data_592343'.format(os.getcwd()))
+            file = os.listdir('list_from_data_592343')
             for i in file:
                 if i[:4] == 'Foto':
                     self.photoes_sp.append(i)
                 else:
-                    with open('data\\{}'.format(i), mode='r', encoding='utf-8') as f:
+                    with open('list_from_data_592343\\{}'.format(i), mode='r', encoding='utf-8') as f:
                         for j in f:
                             sp.append(j)
             for i in sp:
@@ -212,44 +206,54 @@ class Upload(QMainWindow):
                 p += spisok[-1][0] * spisok[0][1]
                 h += spisok[0][0] * spisok[-1][1]
                 self.squares_sp.append(abs(p - h) * 0.5)
-            shutil.rmtree('data', ignore_errors=True)
+            shutil.rmtree('list_from_data_592343', ignore_errors=True)
 
 
 class ResWidget(Upload):
-    def __init__(self, zagruzka, squares_sp, photoes_sp, coords):
+    def __init__(self, squares_sp, photoes_sp, coords):
         super().__init__()
         self.coords = coords
-        self.zagruzka = zagruzka
         self.squares_sp = squares_sp
         self.photoes_sp = photoes_sp
         uic.loadUi('ResWidget.ui', self)
-        self.risunok()
         for i in range(1, len(squares_sp) + 1):
             self.comboBox.addItem('Поле {}'.format(i))
         self.lblSquares.setText('Площадь поля: ' + self.area() + ' м^2')
         self.lblSrPlot.setText('Cредняя плотность пшеницы на поле: ' + self.sred_plot() + ' шт/метр')
         self.lblKol.setText('Общее число колосьев на поле: ' + self.kol() + ' шт')
-        if self.zagruzka:
-            self.lblZagruzil.show()
-            self.lblZagruzil.setText(self.lblZagruzil.text() + '   ' + self.razmetka())
-        else:
-            self.lblZagruzil.hide()
         self.comboBox.currentTextChanged.connect(self.remake)
         self.btnReturn.clicked.connect(self.back)
+        self.btnZagruzka.clicked.connect(self.razmetka)
 
     def back(self):
         self.back_form = Upload()
         self.back_form.show()
         self.hide()
 
-    def risunok(self):
-        pass
+    def paintEvent(self, e):
+        qp = QPainter()
+        qp.begin(self)
+        self.drawLines(qp)
+        qp.end()
+
+    def drawLines(self, qp):
+        brush = QBrush(Qt.white)
+        qp.setBrush(brush)
+        qp.drawRect(10, 250, 1230, 460)
+        pen = QPen(Qt.black, 2)
+        qp.setPen(pen)
+        k = self.coords[int(self.comboBox.currentText()[-1]) - 1]
+        for i in range(len(self.coords[int(self.comboBox.currentText()[-1]) - 1]) - 1):
+            qp.drawLine(int(k[i][0] * 1.23 + 10), int(k[i][1] * 0.47 + 250),
+                        int(k[i + 1][0] * 1.23 + 10), int(k[i + 1][1] * 0.47 + 250))
+        qp.drawLine(int(k[-1][0] * 1.23 + 10), int(k[-1][1] * 0.47 + 250),
+                    int(k[0][0] * 1.23 + 10), int(k[0][1] * 0.47 + 250))
 
     def remake(self):
         self.lblSquares.setText('Площадь поля: ' + self.area() + ' м^2')
         self.lblSrPlot.setText('Cредняя плотность пшеницы на поле: ' + self.sred_plot() + ' шт/метр')
         self.lblKol.setText('Общее число колосьев на поле: ' + self.kol() + ' шт')
-        self.risunok()
+        self.update()
 
     def razmetka(self):
         """Здесь функция, которая размечает колосья на фотографиях и загружает их в папку.
