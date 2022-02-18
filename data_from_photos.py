@@ -6,6 +6,118 @@ from PyQt5 import uic
 from PyQt5.QtGui import QPixmap, QPen, QPainter, QBrush
 from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QFileDialog
 from PyQt5.QtCore import Qt
+import numpy as np
+import cv2
+
+
+def get_output_layers(net):
+    
+    layer_names = net.getLayerNames()
+
+    output_layers = []
+    
+    for i in net.getUnconnectedOutLayers():
+
+        output_layers.append(layer_names[i - 1] )
+
+    return output_layers
+
+
+
+
+def draw_prediction(img, class_id, confidence, x, y, x_plus_w, y_plus_h):
+
+    
+
+    color = 0
+
+    cv2.rectangle(img, (x,y), (x_plus_w,y_plus_h), color, 2)
+
+    
+
+
+classes = ['BASE']
+
+
+
+
+
+def predict(path):
+    image = cv2.imread(path)
+
+
+
+        
+    config = './yolov4-tiny-custom.cfg'
+    weights = './yolov4-tiny-custom_final.weights'
+    classes = './classes.txt'
+        
+    Width = image.shape[1]
+    Height = image.shape[0]
+    scale = 0.00392
+
+    net = cv2.dnn.readNet(weights, config)
+
+    blob = cv2.dnn.blobFromImage(image, scale, (1024,1024), (0,0,0), True, crop=False)
+
+    net.setInput(blob)
+
+    outs = net.forward(get_output_layers(net))
+
+    class_ids = []
+    confidences = []
+    boxes = []
+    conf_threshold = 0.5
+    nms_threshold = 0.4
+
+
+    for out in outs:
+        for detection in out:
+            scores = detection[5:]
+            class_id = np.argmax(scores)
+            confidence = scores[class_id]
+            if confidence > 0.5:
+                center_x = int(detection[0] * Width)
+                center_y = int(detection[1] * Height)
+                w = int(detection[2] * Width)
+                h = int(detection[3] * Height)
+                x = int(center_x - w / 2)
+                y = int(center_y - h / 2)
+                class_ids.append(class_id)
+                confidences.append(float(confidence))
+                boxes.append((x, y, w+x, h+y))
+
+
+    indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
+
+
+
+
+    for i in indices:
+        box = boxes[i]
+        x = box[0]
+        y = box[1]
+        w = box[2]
+        h = box[3]
+        draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(w), round(h))
+
+    
+
+    ###################Добавить папки и разделить сохранненые текстовые файлы по полям
+    cv2.imwrite('./Wheat_Markup/marked_'+path,image)
+
+
+    
+    with open('./Wheat_Boxes/marked_'+path.replace('.png','.txt'),'w',encoding='utf-8') as f:
+        for i in boxes:
+            for j in i:
+                f.write(str(j)+' ')
+
+            f.write('\n')
+            
+    ####################################
+    
+    return boxes
 
 
 class Upload(QMainWindow):
@@ -256,9 +368,14 @@ class ResWidget(Upload):
         self.update()
 
     def razmetka(self):
-        """Здесь функция, которая размечает колосья на фотографиях и загружает их в папку.
-        Если размеченные фотки не получится добавить, то можно просто в текстовый файл записать координаты рамок"""
-        return "{}\\Wheat_Markup".format(os.getcwd())
+        paths = self.photoes_sp
+
+        boxes = []
+         
+        for path in paths:
+            boxes.append(predict(path))
+
+        return boxes
 
     def area(self):
         return str(self.squares_sp[int(self.comboBox.currentText()[-1]) - 1])
