@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="btnRun">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>1070</y>
+      <x>360</x>
+      <y>1050</y>
       <width>471</width>
       <height>121</height>
      </rect>
@@ -30,24 +30,6 @@
     </property>
     <property name="text">
      <string>Вычислить</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="btnZagruz">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>1000</y>
-      <width>711</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Загрузить фотографии с разметкой колосьев пшеницы на Ваш компьютер</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnSquareUpload">
