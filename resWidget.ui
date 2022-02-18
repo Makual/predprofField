@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>300</x>
-      <y>710</y>
+      <y>700</y>
       <width>931</width>
       <height>61</height>
      </rect>
@@ -36,7 +36,7 @@
     <property name="geometry">
      <rect>
       <x>300</x>
-      <y>790</y>
+      <y>780</y>
       <width>921</width>
       <height>61</height>
      </rect>
@@ -50,30 +50,12 @@
      <string>Cредняя плотность пшеницы на поле:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="lblZagruzil">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>960</y>
-      <width>1191</width>
-      <height>91</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Папка Wheats_Markup с фото, на которых размечены колосья пшеницы была загружена в</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="btnReturn">
     <property name="geometry">
      <rect>
-      <x>420</x>
-      <y>1080</y>
-      <width>411</width>
+      <x>380</x>
+      <y>1100</y>
+      <width>521</width>
       <height>101</height>
      </rect>
     </property>
@@ -90,7 +72,7 @@
     <property name="geometry">
      <rect>
       <x>300</x>
-      <y>870</y>
+      <y>860</y>
       <width>921</width>
       <height>71</height>
      </rect>
@@ -168,6 +150,37 @@
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnZagruzka">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>960</y>
+      <width>381</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Загрузить файл с разметкой колосьев пшеницы</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>250</y>
+      <width>1231</width>
+      <height>471</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
     </property>
    </widget>
   </widget>
