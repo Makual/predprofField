@@ -68,7 +68,7 @@ def predict(path):
     confidences = []
     boxes = []
     conf_threshold = 0.5
-    nms_threshold = 0.4
+    nms_threshold = 0.5
 
 
     for out in outs:
@@ -116,8 +116,13 @@ def predict(path):
             f.write('\n')
             
     ####################################
-    
-    return boxes
+    finBoxes = []
+
+    for i in indices:
+        finBoxes.append(boxes[i])
+
+    return finBoxes
+
 
 
 class Upload(QMainWindow):
