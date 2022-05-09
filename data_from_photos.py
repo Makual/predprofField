@@ -10,6 +10,8 @@ from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QFileDialog
 from PyQt5.QtCore import Qt
 import numpy as np
 import cv2
+from shapely.geometry import Point
+from shapely.geometry.polygon import Polygon
 
 # подстраиваем интерфейс под расширение экрана
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
@@ -412,13 +414,10 @@ class ResWidget(Upload):
         brush = QBrush(Qt.darkGreen)
         qp.setBrush(brush)
         qp.drawRect(10, 250, 1230, 340)
-        pen = QPen(Qt.darkYellow, 4)
-        qp.setPen(pen)
-        k = int(500 * float(self.sred_plot()))
-        for i in range(k):
-            x = random.randint(10, 1240)
-            y = random.randint(250, 590)
-            qp.drawPoint(x, y)
+        
+
+        
+            
         pen = QPen(Qt.red, 10)
         qp.setPen(pen)
         g = self.comboBox.currentText()
@@ -442,6 +441,27 @@ class ResWidget(Upload):
                             int(i[j + 1][0] * 1.23 + 10), int(i[j + 1][1] * 0.34 + 250))
             qp.drawLine(int(i[-1][0] * 1.23 + 10), int(i[-1][1] * 0.34 + 250),
                         int(i[0][0] * 1.23 + 10), int(i[0][1] * 0.34 + 250))
+
+
+        newPolygon = []
+        for i in range(len(self.coords[k][0])):
+            newPolygon.append([0,0])
+            newPolygon[i][0] = self.coords[k][0][i][0] * 1.23 + 10
+            newPolygon[i][1] = self.coords[k][0][i][1]* 0.34 + 250
+
+        
+            
+        polygon  = Polygon(newPolygon)
+
+
+        pen = QPen(Qt.darkYellow, 4)
+        qp.setPen(pen)
+        k = int(500 * float(self.sred_plot()))
+        for i in range(k):
+            x = random.randint(10, 1240)
+            y = random.randint(250, 590)
+            if polygon.contains(Point(x,y)):
+                qp.drawPoint(x, y)
 
     def closeEvent(self, event):
         shutil.rmtree('photoes_from_data_546712', ignore_errors=True)
